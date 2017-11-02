@@ -1,18 +1,22 @@
-require './card.rb'
-
 class Board
-  attr_accessor :cards
-  def initialize
-    @cards = []
+  attr_accessor :stack, :rule
+
+  def initialize(effects, rule_class)
+    @stack = []
+    @rule = rule_class.new(self)
+    @effects = effects
   end
 
-  def put(card)
-    raise GameError if !top.nil? && top > card
-    card.solve(self)
+  def put(*targets)
+    raise GameError unless @rule.correct?(targets)
+    cards = Cards.new(targets)
+    board.stack << cards
+    @effects.map { |effect| effect.apply(self) }
+    top
   end
 
   def top
-    @cards.first
+    @cards.last
   end
 end
 

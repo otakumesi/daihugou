@@ -1,39 +1,63 @@
 class Card
   include Comparable
-  attr_accessor auit
+  attr_accessor :suit, :label
 
-  def initialize(suit, rank)
+  ORDERED_LABEL = %i[
+    three
+    four
+    five
+    six
+    seven
+    eight
+    nine
+    ten
+    jack
+    queen
+    king
+    one
+    two
+    joker
+  ].freeze
+
+  def initialize(label, suit = nil)
+    @label = label
     @suit = suit
-    @rank = rank
   end
 
-  def solve(board)
-    board.cards << self
-    affect(board)
-  end
-
-  def affect(_)
-    nil
+  def level
+    ORDERED_LABEL.index(@label)
   end
 
   def <=>(other)
-    rank <=> other.rank if rank.between?(3..13) && other.rank.between?(3..13)
-    rank <=> if rank.between?(1..2) && other.rank.between?(1..2)
-  end
-
-  def rank
-    raise NoImplementsError
+    level <=> other.level
   end
 end
 
-class EightCard < Card
-  def affect(board)
-    board.cards = []
-  end
-end
+class Cards
+  include Enumerable
+  include Comparable
 
-class Jorker < Card
-  def rank
-    13
+  def each
+    yield @cards
   end
+
+  def initialize(cards)
+    @cards = cards
+  end
+
+  def single?
+    @cards.one?
+  end
+
+  def multi?
+    !single?
+  end
+
+  def <=>(other)
+    cards <=> other.cards
+  end
+
+  protected
+
+  attr_accessor :cards
 end

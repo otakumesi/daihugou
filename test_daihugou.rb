@@ -1,43 +1,42 @@
 require 'test/unit'
 require './daihugou.rb'
+require './deck.rb'
+require './rule.rb'
+require './effect.rb'
 
 class TestBoard < Test::Unit::TestCase
   def setup
-    @board = Board.new
-    @three = ThreeCard.new
-    @four = FourCard.new
-    @five = FiveCard.new
-    @six = SixCard.new
-    @seven = SevenCard.new
-    @eight = EightCard.new
-    @nine = NineCard.new
-    @ten = TenCard.new
-    @jack = JackCard.new
-    @queen = QueenCard.new
-    @king = KingCard.new
-    @one = OneCard.new
-    @two = TwoCard.new
+    @effects = [YagiriEffect.new]
+    @board = Board.new(@effects, StandardPutableRule)
+    @cards = Deck.create
   end
 
   def test_put_card
-    @board.put(@three)
-    @board.put(@four)
+    @board.put(@cards[:three][:heart])
+    @board.put(@cards[:four][:club])
     assert_equal(@board.cards.size, 2)
-    assert_equal(@board.cards, [@three, @four])
+    assert_equal(@board.cards, [@cards[:three][:heart], @cards[:four][:club]])
   end
 
   def test_cant_put_smaller_number
-    @board.put(@four)
+    @board.put(@cards[:four][:diamond])
     assert_raise(GameError) do
-      @board.put(@three)
+      @board.put(@cards[:three][:spade])
     end
   end
 
   def test_eight_card_affect
-    @board.put(@three)
-    @board.put(@four)
-    @board.put(@eight)
+    @board.put(@cards[:three][:heart])
+    @board.put(@cards[:four][:club])
+    @board.put(@cards[:eight][:diamond])
     assert_equal(@board.cards.size, 0)
     assert_equal(@board.cards, [])
+  end
+
+  def test_spade_three_card_rule
+    @board.put(@cards[:joker])
+    assert_nothing_raised GameError do
+      @board.put(@cards[:three][:spade])
+    end
   end
 end
